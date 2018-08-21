@@ -1,47 +1,62 @@
 'use strict'
 
-const janken = ['グー', 'チョキ', 'パー']
+const Janken = (function() {
+  const Janken = function() {
+    if (!(this instanceof Janken)) {
+      return new Janken()
+    }
 
-function janken_poi() {
-  const input = Number(prompt('「じゃんけん・・・」\n> 0.グー 1.チョキ 2.パー'))
-  console.log(input)
-  const computer = Math.floor(Math.random() * 3)
-  console.log('「ぽい!」')
-  console.log(`*コンピュータ:${janken[computer]}`)
-  console.log(`*あなた:${janken[input]}`)
-
-  if (input === computer) {
-    console.log('「アイコでしょ！」')
-    janken_poi()
-    return
+    this.rock = { id: 0, value: 'グー' }
+    this.scissors = { id: 1, value: 'チョキ' }
+    this.paper = { id: 2, value: 'パー' }
+    this.choices = [this.rock, this.scissors, this.paper]
   }
 
-  let win = false
-  switch (input) {
-    case 0:
-      if (computer === 1) {
-        win = true
+  const proto = Janken.prototype
+
+  proto.getJankenObj = function(id) {
+    for (let choice of this.choices) {
+      if (choice.id === id) {
+        return choice
       }
-      break
-    case 1:
-      if (computer === 2) {
-        win = true
-      }
-      break
-    case 2:
-      if (computer === 0) {
-        win = true
-      }
-      break
-    default:
-      break
+    }
   }
 
-  if (win) {
-    console.log('「あなたの勝ち！」')
-  } else {
-    console.log('「あなたの負け！」')
-  }
-}
+  proto.jankenPoi = function() {
+    const input_info = this.choices.map(function(choice) {
+      return `${choice.id}.${choice.value}`
+    })
+    const input = this.getJankenObj(Number(prompt(`「じゃんけん・・・」\n> ${input_info.join(' ')}`)))
+    if (!input) {
+      this.jankenPoi()
+      return
+    }
+    const computer = this.getJankenObj(Math.floor(Math.random() * 3))
+    console.log(input.id)
+    console.log('「ぽい!」')
+    console.log(`*コンピュータ:${computer.value}`)
+    console.log(`*あなた:${input.value}`)
 
-janken_poi()
+    if (input === computer) {
+      console.log('「アイコでしょ！」')
+      this.jankenPoi()
+      return
+    }
+
+    const youwin =
+      (input === this.rock && computer === this.scissors) ||
+      (input === this.scissors && computer === this.paper) ||
+      (input === this.paper && computer === this.rock)
+
+    if (youwin) {
+      console.log('「あなたの勝ち！」')
+    } else {
+      console.log('「あなたの負け！」')
+    }
+  }
+
+  return Janken
+})()
+
+const jk = new Janken()
+jk.jankenPoi()
